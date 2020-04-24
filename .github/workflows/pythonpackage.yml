@@ -24,9 +24,9 @@ jobs:
         python -m pip install --upgrade pip
     - name: Build and publish
       run: |
-        pip install poetry
+        # pip install poetry
         # sed -i 's/^version = ".\+">/version = "${{ github.event.ref }}"/' pyproject.toml
-        echo github.event.ref
-        poetry build
-        poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
+        echo ${{ github.event.ref }}
+        # poetry build
+        # poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
         # poetry publish
