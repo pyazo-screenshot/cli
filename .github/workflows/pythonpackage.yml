@@ -21,8 +21,12 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-    - name: Build and publish 
+    - name: Build and publish
+      # if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
       run: |
         pip install poetry
-        poetry build 
+        # sed -i 's/^version = ".\+">/version = "${{ github.event.ref }}"/' pyproject.toml
+        echo github.event.ref
+        poetry build
         poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
+        # poetry publish
