@@ -25,8 +25,10 @@ jobs:
     - name: Build and publish
       run: |
         # pip install poetry
-        # sed -i 's/^version = ".\+">/version = "${{ github.event.ref }}"/' pyproject.toml
+        echo ${{ github.event.ref }}
         echo ${{ github.ref }}
+        # sed -i 's/^version = ".\+">/version = "${{ github.event.ref }}"/' pyproject.toml
+        # REF=$(echo ${{ github.ref }} | sed "s#refs/tags/##")
         # poetry build
         # poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
         # poetry publish
