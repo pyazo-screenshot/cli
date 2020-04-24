@@ -36,4 +36,4 @@ jobs:
         token: ${{ secrets.REPO_ACCESS_TOKEN }}
         repository: pyazo-screenshot/aur
         event-type: aur-package
-        client-payload: '{"ref": "${{ $REF }}"}'
+        client-payload: '{"ref": "${{ github.ref }} | sed "s#\(refs/tags/\)\?v\?##")"}'
