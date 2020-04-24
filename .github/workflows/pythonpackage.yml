@@ -30,3 +30,10 @@ jobs:
         poetry build
         poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
         poetry publish
+    - name: Repository Dispatch AUR
+      uses: peter-evans/repository-dispatch@v1
+      with:
+        token: ${{ secrets.REPO_ACCESS_TOKEN }}
+        repository: pyazo-screenshot/aur
+        event-type: aur-package
+        client-payload: '{"ref": "${{ github.ref }}'
