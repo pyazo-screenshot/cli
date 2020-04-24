@@ -3,7 +3,7 @@ name: Python package
 on:
   push:
     tags:
-      - '*'
+      - 'v*.*.*'
 
 jobs:
   build:
@@ -24,11 +24,9 @@ jobs:
         python -m pip install --upgrade pip
     - name: Build and publish
       run: |
-        # pip install poetry
-        echo ${{ github.event.ref }}
-        echo ${{ github.ref }}
-        # sed -i 's/^version = ".\+">/version = "${{ github.event.ref }}"/' pyproject.toml
-        # REF=$(echo ${{ github.ref }} | sed "s#refs/tags/##")
-        # poetry build
-        # poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
-        # poetry publish
+        pip install poetry
+        REF=$(echo ${{ github.ref }} | sed "s#\(refs/tags/\)\?v\?##")
+        sed -i "s/^version = \".\+\"/version = \"$REF\"/" pyproject.toml
+        poetry build
+        poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
+        poetry publish
