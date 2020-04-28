@@ -2,3 +2,4 @@
 url = https://example.com
 token = JWT_TOKEN
 util = maim
+; output_dir = OUTPUT_DIR
