@@ -20,8 +20,6 @@ jobs:
       uses: JRubics/poetry-publish@v1
       with:
         pypi_token: ${{ secrets.PYPI_TOKEN }}
-        python_version: '3.8.2'
-        poetry_version: '==1.0.5'
     - name: Publish aur
       uses: pyazo-screenshot/docker_action@v1
       with:
