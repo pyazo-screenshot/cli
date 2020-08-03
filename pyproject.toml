@@ -3,6 +3,16 @@ name = "pyazo_cli"
 version = "0.1.5"
 description = ""
 authors = ["Jelena Dokic <jrubics@hacke.rs>"]
+readme = "README.md"
+license = "BSD-3-Clause"
+homepage = "https://github.com/pyazo-screenshot/cli"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.6",
+]
 
 [tool.poetry.dependencies]
 python = "^3.6"
