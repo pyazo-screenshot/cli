@@ -42,25 +42,28 @@ backends = {
     }
 }
 
+util = config.get('util')
+backend = backends[platform.system()]
+if util is not None:
+    args = backend[util]
+else:
+    for util, args in backends[platform.system()].items():
+        if shutil.which(util) is not None and run([util] + args).returncode == 0:
+            break
 
 def notify(message, time):
-    Popen(['notify-send', '-t', str(time), message])
+    if util == 'screencapture':
+        Popen(['osascript', '-e', f'display notification "{message}" with title "pyazo"'])
+    else:
+        Popen(['notify-send', '-t', str(time), message])
 
 
 def make_screenshot():
-    util = config.get('util')
-    backend = backends[platform.system()]
-    if util is not None:
-        args = backend[util]
-        if run([util] + args).returncode != 0:
-            message = 'Error: Failed to take screenshot.'
-            print(message, file=sys.stderr)
-            notify(message, 4000)
-            exit(-1)
-    else:
-        for util, args in backends[platform.system()].items():
-            if shutil.which(util) is not None and run([util] + args).returncode == 0:
-                break
+    if run([util] + args).returncode != 0:
+        message = 'Error: Failed to take screenshot.'
+        print(message, file=sys.stderr)
+        notify(message, 4000)
+        exit(-1)
 
     # If the used util stored the screenshot in the clipboard, output it to the tmp file
     if util == 'snippingtool':
