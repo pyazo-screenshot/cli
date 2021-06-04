@@ -27,4 +27,4 @@ requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
 
 [tool.poetry.scripts]
-pyazo = 'pyazo_cli.pyazo:upload_image'
+pyazo = 'pyazo_cli.pyazo:main'
