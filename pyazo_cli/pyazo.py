@@ -2,20 +2,21 @@
 
 import os
 import platform
-import pyperclip
-import requests
 import shutil
 import sys
 import tempfile
 import time
-import click
 from configparser import ConfigParser
 from datetime import datetime
-from subprocess import run, Popen, PIPE
+from subprocess import PIPE, Popen, run
+
+import click
+import pyperclip  # type: ignore
+import requests
 
 # Configuration
-config = ConfigParser()
-config.read_dict({
+config_parser = ConfigParser()
+config_parser.read_dict({
     'pyazo': {
         'url': 'https://pyazo.example.com/api',
         'token': '',
@@ -23,8 +24,8 @@ config.read_dict({
         'output_dir': '',
     }
 })
-config.read(os.path.expanduser('~/.config/pyazo/config.ini'))
-config = config['pyazo']
+config_parser.read(os.path.expanduser('~/.config/pyazo/config.ini'))
+config = config_parser['pyazo']
 
 tmp_file = os.path.join(tempfile.gettempdir(), 'screenshot.png')
 
@@ -48,26 +49,45 @@ if util is not None:
     args = backend[util]
 else:
     for util, args in backends[platform.system()].items():
-        if shutil.which(util) is not None and run([util] + args).returncode == 0:
+        if (
+            shutil.which(util) is not None
+            and run([util] + args).returncode == 0
+        ):
             break
+
 
 def notify(message, time):
     if util == 'screencapture':
-        Popen(['osascript', '-e', f'display notification "{message}" with title "pyazo"'])
+        Popen([
+            'osascript',
+            '-e', f'display notification "{message}" with title "pyazo"',
+        ])
     else:
         Popen(['notify-send', '-t', str(time), message])
 
 
 def make_screenshot():
-    if run([util] + args).returncode != 0:
-        message = 'Error: Failed to take screenshot.'
-        print(message, file=sys.stderr)
-        notify(message, 4000)
-        exit(-1)
+    util = config.get('util')
+    backend = backends[platform.system()]
+    if util is not None:
+        args = backend[util]
+        if run([util] + args).returncode != 0:
+            message = 'Error: Failed to take screenshot.'
+            print(message, file=sys.stderr)
+            notify(message, 4000)
+            exit(-1)
+    else:
+        for util, args in backends[platform.system()].items():
+            if (
+                    shutil.which(util) is not None
+                    and run([util] + args).returncode == 0
+            ):
+                break
 
-    # If the used util stored the screenshot in the clipboard, output it to the tmp file
+    # If the used util stored the screenshot in the clipboard,
+    # output it to the tmp file
     if util == 'snippingtool':
-        from PIL import ImageGrab
+        from PIL import ImageGrab  # type: ignore
         img = ImageGrab.grabclipboard()
         if img is not None:
             img.save(tmp_file, optimize=True)
@@ -91,21 +111,21 @@ def upload_file(filename, copy_clipboard, output_url, private, clear_metadata):
             params=params,
         )
 
-        if r.status_code != 200:
-            message = f'Error: Failed to upload screenshot. [{r.status_code}]'
-            print(message, file=sys.stderr)
-            notify(message, 4000)
-            exit(-2)
+    if r.status_code >= 400:
+        message = f'Error: Failed to upload screenshot. [{r.status_code}]'
+        print(message, file=sys.stderr)
+        notify(message, 4000)
+        exit(-2)
 
-        url = f'{config.get("url")}/{r.json()["id"]}'
+    url = f'{config.get("url")}/{r.json()["id"]}'
 
-        if copy_clipboard:
-            pyperclip.copy(url)
+    if copy_clipboard:
+        pyperclip.copy(url)
 
-        if output_url:
-            print(url)
+    if output_url:
+        print(url)
 
-        return url
+    return url
 
 
 def save_file():
@@ -125,22 +145,77 @@ def save_file():
     shutil.move(tmp_file, os.path.join(output_dir, f'{image_file}.png'))
 
 
+def delete_last_image() -> None:
+    request_url = f'{config.get("url")}/images'
+    r = requests.get(
+        request_url,
+        headers={'Authorization': f'Bearer {config.get("token")}'},
+        params={'per_page': 1},
+    )
+    image_id: str = r.json()['results'][0]['id']
+    request_url = f'{config.get("url")}/images/{image_id}'
+    r = requests.delete(
+        request_url,
+        headers={'Authorization': f'Bearer {config.get("token")}'},
+    )
+    if r.status_code >= 400:
+        message = f'Error: Failed to delete image. [{r.status_code}]'
+        print(message, file=sys.stderr)
+        notify(message, 4000)
+        exit(-2)
+
+
 @click.command()
 @click.option('-p', '--private', is_flag=True, help='Make the image private')
 @click.option('-i', '--image', help='Path to the image to upload')
-@click.option('-c', '--clear-metadata', is_flag=True, help='Clear image metadata')
-@click.option('--no-copy', is_flag=True, help='Don\'t copy the url to the clipboard after upload.')
-@click.option('--no-output', is_flag=True, help='Don\'t print the url to stdout after upload.')
-def upload_image(private, image, clear_metadata, no_copy, no_output):
+@click.option(
+    '-c', '--clear-metadata',
+    is_flag=True,
+    help='Clear image metadata',
+)
+@click.option('-d', '--delete', is_flag=True, help='Delete last uploaded image')
+@click.option(
+    '--no-copy',
+    is_flag=True,
+    help='Don\'t copy the url to the clipboard after upload.',
+)
+@click.option(
+    '--no-output',
+    is_flag=True,
+    help='Don\'t print the url to stdout after upload.',
+)
+def main(
+    private: bool,
+    image: str,
+    delete: bool,
+    clear_metadata: bool,
+    no_copy: bool,
+    no_output: bool,
+):
     if image:
-        url = upload_file(image, not no_copy, not no_output, private, clear_metadata)
+        url = upload_file(
+            image,
+            not no_copy,
+            not no_output,
+            private,
+            clear_metadata,
+        )
+    elif delete:
+        delete_last_image()
+        return
     else:
         make_screenshot()
-        url = upload_file(tmp_file, not no_copy, not no_output, private, clear_metadata)
+        url = upload_file(
+            tmp_file,
+            not no_copy,
+            not no_output,
+            private,
+            clear_metadata,
+        )
         save_file()
 
     notify(f'Screenshot uploaded {url}', 1500)
 
 
 if __name__ == '__main__':
-    upload_image()
+    main()
