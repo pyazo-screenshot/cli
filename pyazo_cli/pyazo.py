@@ -184,6 +184,11 @@ def delete_last_image() -> None:
     is_flag=True,
     help='Don\'t print the url to stdout after upload.',
 )
+@click.option(
+    '--no-save',
+    is_flag=True,
+    help='Don\'t save the file locally after upload.',
+)
 def main(
     private: bool,
     image: str,
@@ -191,6 +196,7 @@ def main(
     clear_metadata: bool,
     no_copy: bool,
     no_output: bool,
+    no_save: bool,
 ):
     if image:
         url = upload_file(
@@ -212,7 +218,8 @@ def main(
             private,
             clear_metadata,
         )
-        save_file()
+        if not no_save:
+            save_file()
 
     notify(f'Screenshot uploaded {url}', 1500)
 
