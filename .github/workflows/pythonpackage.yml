@@ -1,6 +1,7 @@
+---
 name: Python package
 
-on:
+'on':
   push:
     tags:
       - 'v*.*.*'
@@ -11,17 +12,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Change version in pyproject.toml
-      run: |
-        REF=$(echo ${{ github.ref }} | sed "s#\(refs/tags/\)\?v\?##")
-        sed -i "s/^version = \".\+\"/version = \"$REF\"/" pyproject.toml
-    - name: Build and publish to pypi
-      uses: JRubics/poetry-publish@v1.9
-      with:
-        pypi_token: ${{ secrets.PYPI_TOKEN }}
-    - name: Publish aur
-      uses: pyazo-screenshot/docker_action@v1
-      with:
-        tag: ${{ github.ref }}
-        aur_key: ${{ secrets.AUR_KEY }}
+      - uses: actions/checkout@v2
+      - name: Change version in pyproject.toml
+        run: |
+          REF=$(echo ${{ github.ref }} | sed "s#\(refs/tags/\)\?v\?##")
+          sed -i "s/^version = \".\+\"/version = \"$REF\"/" pyproject.toml
+      - name: Build and publish to pypi
+        uses: JRubics/poetry-publish@v1.9
+        with:
+          pypi_token: ${{ secrets.PYPI_TOKEN }}
+      - name: Publish aur
+        uses: pyazo-screenshot/docker_action@v1
+        with:
+          tag: ${{ github.ref }}
+          aur_key: ${{ secrets.AUR_KEY }}
