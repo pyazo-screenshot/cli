@@ -6,7 +6,7 @@ It is comprised of a cross-platform client written in Python which defers the ac
 
 ## Compatibility
 
-* Python >= 3.6 (check with `python --version`)
+* Python >= 3.7 (check with `python --version`)
 
 The following OSes have off-the-shelf compatibility. You can add more back ends for missing systems or configurations.
 

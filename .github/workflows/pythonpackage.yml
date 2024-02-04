@@ -18,9 +18,10 @@ jobs:
           REF=$(echo ${{ github.ref }} | sed "s#\(refs/tags/\)\?v\?##")
           sed -i "s/^version = \".\+\"/version = \"$REF\"/" pyproject.toml
       - name: Build and publish to pypi
-        uses: JRubics/poetry-publish@v1.15
+        uses: JRubics/poetry-publish@v1.17
         with:
           pypi_token: ${{ secrets.PYPI_TOKEN }}
+          build_format: wheel
       - name: Publish aur
         uses: pyazo-screenshot/docker_action@v1
         with:
