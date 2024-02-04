@@ -33,13 +33,14 @@ backends = {
     'Linux': {
         'maim': ['-s', '-n', '0', tmp_file],
         'scrot': ['-s', tmp_file],
-        'import': [tmp_file]  # ImageMagick
+        'import': [tmp_file],  # ImageMagick
+        'grimshot': ['save', 'area', tmp_file],
     },
     'Darwin': {
-        'screencapture': ['-i', tmp_file]
+        'screencapture': ['-i', tmp_file],
     },
     'Windows': {
-        'snippingtool': ['/clip']  # '/clip' requires at least Win10 1703
+        'snippingtool': ['/clip'],  # '/clip' requires at least Win10 1703
     }
 }
 
@@ -133,7 +134,7 @@ def save_file():
     if output_dir == '':
         if shutil.which('xdg-user-dir') is not None:
             p = Popen(['xdg-user-dir', 'PICTURES'], stdout=PIPE, stderr=PIPE)
-            output, err = p.communicate()
+            output, _ = p.communicate()
             output_dir = os.path.join(output.decode().strip(), 'screenshots')
         else:
             os.remove(tmp_file)
