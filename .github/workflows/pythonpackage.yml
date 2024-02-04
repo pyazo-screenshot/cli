@@ -22,7 +22,7 @@ jobs:
         with:
           pypi_token: ${{ secrets.PYPI_TOKEN }}
       - name: Publish aur
-        uses: pyazo-screenshot/docker_action@v1.1
+        uses: pyazo-screenshot/docker_action@v1
         with:
           tag: ${{ github.ref }}
           aur_key: ${{ secrets.AUR_KEY }}
