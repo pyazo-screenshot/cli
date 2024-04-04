@@ -35,6 +35,7 @@ backends = {
         'scrot': ['-s', tmp_file],
         'import': [tmp_file],  # ImageMagick
         'grimshot': ['save', 'area', tmp_file],
+        'spectacle': ['-b', '-r', '-n', '-o', tmp_file],
     },
     'Darwin': {
         'screencapture': ['-i', tmp_file],
