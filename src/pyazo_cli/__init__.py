@@ -30,14 +30,15 @@ _ = config_parser.read(os.path.expanduser("~/.config/pyazo/config.ini"))
 config = config_parser["pyazo"]
 tmp_file = os.path.join(tempfile.gettempdir(), "screenshot.png")
 
+STDOUT_TOOLS = ("hyprshot", "grimshot", "maim")
 OS_BACKENDS = {
     "Linux": {
-        "maim": ["-s", "-n", "0", tmp_file],
+        "maim": ["-s", "-n", "0"],
         "scrot": ["-s", tmp_file],
         "import": [tmp_file],  # ImageMagick
-        "grimshot": ["save", "area", tmp_file],
+        "grimshot": ["save", "area", "-"],
         "spectacle": ["-b", "-r", "-n", "-o", tmp_file],
-        "hyprshot": ["-m", "region", "-s", "-z", "-o", "/", "-f", tmp_file],
+        "hyprshot": ["-m", "region", "-s", "-z", "-r", "png"],
     },
     "Darwin": {
         "screencapture": ["-i", tmp_file],
@@ -61,24 +62,33 @@ def notify(message: str, time: int):
 def make_screenshot():
     util = config.get("util")
     backends = OS_BACKENDS[platform.system()]
-    if util is not None:
-        args = backends[util]
-        ret = run([util] + args)
-        if ret.returncode != 0:
-            message = "Error: Failed to take screenshot."
+    if util is None:
+        for util in backends.keys():
+            if shutil.which(util) is not None:
+                break
+        else:
+            message = "No screenshot tool available"
             print(message, file=sys.stderr)
             notify(message, 4000)
-            exit(-1)
-    else:
-        for util, args in backends.items():
-            if shutil.which(util) is not None and run([util] + args).returncode == 0:
-                break
+            exit(1)
 
-    if not os.path.isfile(tmp_file):
-        message = "Error: Failed to take screenshot."
+    args = backends[util]
+    ret = run([util] + args, capture_output=True)
+    if ret.returncode != 0:
+        message = "Failed to take screenshot"
         print(message, file=sys.stderr)
         notify(message, 4000)
-        exit(-1)
+        exit(1)
+
+    if util in STDOUT_TOOLS:
+        with open(tmp_file, "wb") as f:
+            f.write(ret.stdout)
+
+    if not os.path.isfile(tmp_file):
+        message = "Failed to take screenshot: No output file"
+        print(message, file=sys.stderr)
+        notify(message, 4000)
+        exit(1)
 
 
 def upload_file(
@@ -100,10 +110,10 @@ def upload_file(
         )
 
     if r.status_code >= 400:
-        message = f"Error: Failed to upload screenshot. [{r.status_code}]"
+        message = f"Failed to upload screenshot. [{r.status_code}]"
         print(message, file=sys.stderr)
         notify(message, 4000)
-        exit(-2)
+        exit(2)
 
     url = f"{config.get('url')}/{r.json()['id']}"
 
@@ -147,10 +157,10 @@ def delete_last_image() -> None:
         headers={"Authorization": f"Bearer {config.get('token')}"},
     )
     if r.status_code >= 400:
-        message = f"Error: Failed to delete image. [{r.status_code}]"
+        message = f"Failed to delete image. [{r.status_code}]"
         print(message, file=sys.stderr)
         notify(message, 4000)
-        exit(-2)
+        exit(2)
 
 
 @click.command()
@@ -166,17 +176,17 @@ def delete_last_image() -> None:
 @click.option(
     "--no-copy",
     is_flag=True,
-    help="Don't copy the url to the clipboard after upload.",
+    help="Don't copy the url to the clipboard after upload",
 )
 @click.option(
     "--no-output",
     is_flag=True,
-    help="Don't print the url to stdout after upload.",
+    help="Don't print the url to stdout after upload",
 )
 @click.option(
     "--no-save",
     is_flag=True,
-    help="Don't save the file locally after upload.",
+    help="Don't save the file locally after upload",
 )
 def main(
     private: bool,
