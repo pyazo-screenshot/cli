@@ -95,12 +95,11 @@ def upload_file(
     filename: str,
     copy_clipboard: bool,
     output_url: bool,
-    private: bool,
     clear_metadata: bool,
 ):
     with open(filename, "rb") as img:
         request_url = f"{config.get('url')}/images"
-        params = {"private": private, "clear_metadata": clear_metadata}
+        params = {"clear_metadata": clear_metadata}
 
         r = requests.post(
             request_url,
@@ -164,7 +163,6 @@ def delete_last_image() -> None:
 
 
 @click.command()
-@click.option("-p", "--private", is_flag=True, help="Make the image private")
 @click.option("-i", "--image", help="Path to the image to upload")
 @click.option(
     "-c",
@@ -189,7 +187,6 @@ def delete_last_image() -> None:
     help="Don't save the file locally after upload",
 )
 def main(
-    private: bool,
     image: str,
     delete: bool,
     clear_metadata: bool,
@@ -202,7 +199,6 @@ def main(
             image,
             not no_copy,
             not no_output,
-            private,
             clear_metadata,
         )
     elif delete:
@@ -214,7 +210,6 @@ def main(
             tmp_file,
             not no_copy,
             not no_output,
-            private,
             clear_metadata,
         )
         if not no_save:
