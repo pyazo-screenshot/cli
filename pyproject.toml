@@ -1,6 +1,6 @@
 [project]
 name = "pyazo_cli"
-version = "0.5.1"
+version = "0.5.2"
 description = ""
 authors = [
     {name = "Jelena Dokic", email = "jrubics@hacke.rs"},
