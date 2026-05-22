@@ -6,23 +6,19 @@ It is comprised of a cross-platform client written in Python which defers the ac
 
 ## Compatibility
 
-* Python >= 3.7 (check with `python --version`)
+- Python >= 3.10 (check with `python --version`)
 
 The following OSes have off-the-shelf compatibility. You can add more back ends for missing systems or configurations.
 
-* Linux (`scrot`, `maim`, or `import` (ImageMagick))
-* macOS
-* Windows 10
+- Linux - `hyprshot`, `spectacle`, `maim`, `scrot`, `grimshot`, `import` (ImageMagick)
+- macOS
 
-## Installation
+## Requirements
 
-* Install [Python] 3
-* Install client requirements:
-
-- [requests](https://pypi.org/project/requests/)
-- [pyperclip](https://pypi.org/project/pyperclip/)
+- [Python 3](https://www.python.org/downloads/)
 - [click](https://pypi.org/project/click/)
-- [pillow](https://pypi.org/project/pillow/) (Windows only)
+- [pyclip](https://pypi.org/project/pyclip/)
+- [requests](https://pypi.org/project/requests/)
 
 ## Configuration
 
@@ -30,18 +26,12 @@ Create an external config file. Pyazo extends the default config with the provid
 
 ### Client
 
-* Example Config: `config.ini.sample`
-* Placement Path: `~/.config/pyazo/config.ini` (`~` refers to the user home directory)
+- Example Config: `config.ini.sample`
+- Placement Path: `~/.config/pyazo/config.ini` (`~` refers to the user home directory)
 
-| Key                | Default                                   | Description                                                              |
-|--------------------|-------------------------------------------|--------------------------------------------------------------------------|
-| url                | https://example.com                       | API endpoint to send the image file in a POST request                    |
-| token              | ' '                                       | JWT token (https://github.com/pyazo-screenshot/api/blob/master/README.md)|
-| util               | maim                                      | Built-in tool or common utility for taking a screenshot                  |
-| output_dir         | `$(xdg-user-dir PICTURES)`/screenshots    | Place to store the image after taking a screenshot                       |
-
-## License
-
-BSD 3-Clause
-
-[Python]: <https://www.python.org/downloads/>
+| Key        | Default                                | Description                                                               |
+| ---------- | -------------------------------------- | ------------------------------------------------------------------------- |
+| url        | https://example.com                    | API endpoint to send the image file in a POST request                     |
+| token      | ' '                                    | JWT token (https://github.com/pyazo-screenshot/api/blob/master/README.md) |
+| util       | maim                                   | Built-in tool or common utility for taking a screenshot                   |
+| output_dir | `$(xdg-user-dir PICTURES)`/screenshots | Place to store the image after taking a screenshot                        |

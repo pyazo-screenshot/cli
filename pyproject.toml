@@ -1,6 +1,6 @@
 [project]
 name = "pyazo_cli"
-version = "0.5.0"
+version = "0.5.1"
 description = ""
 authors = [
     {name = "Jelena Dokic", email = "jrubics@hacke.rs"},
@@ -14,11 +14,11 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3.9",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
-    "click>=8.1.8",
-    "pyclip>=0.7.0",
-    "requests>=2.32.4",
+    "click~=8.4.1",
+    "pyclip~=0.7.0",
+    "requests~=2.34.2",
 ]
 
 [project.scripts]

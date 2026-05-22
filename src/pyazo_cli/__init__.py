@@ -74,7 +74,7 @@ def make_screenshot():
 
     args = backends[util]
     ret = run([util] + args, capture_output=True)
-    if ret.returncode != 0:
+    if ret.returncode != 0 and not (util == "hyprshot" and ret.stdout):
         message = "Failed to take screenshot"
         print(message, file=sys.stderr)
         notify(message, 4000)
